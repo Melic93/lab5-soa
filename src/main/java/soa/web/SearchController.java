@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import twitter4j.Status;
+import java.util.*;
 
 @Controller
 public class SearchController {
@@ -26,7 +28,16 @@ public class SearchController {
 
   @RequestMapping(value = "/search")
   @ResponseBody
-  public Object search(@RequestParam("q") String q) {
-    return producerTemplate.requestBodyAndHeader("direct:search", "", "CamelTwitterKeywords", q);
+  public Object search(@RequestParam(value="q", required=false, defaultValue="write something cool") String q, 
+                       @RequestParam(value="max", required=false, defaultValue="10") int max,
+                       @RequestParam(value="lang", required=false, defaultValue="en") String lang) {
+    
+    Map<String, Object> headers = new HashMap<>();
+
+    headers.put("CamelTwitterKeywords", q);
+    headers.put("CamelTwitterCount", max);
+    headers.put("CamelTwitterSearchLanguage", lang);
+
+    return producerTemplate.requestBodyAndHeaders("direct:search", "", headers);
   }
 }
